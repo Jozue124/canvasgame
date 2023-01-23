@@ -6,67 +6,83 @@ fitCanvas();
 function fitCanvas(){
     //canvas.width = window.innerWidth;
     //canvas.height = window.innerHeight;
-    canvas.width = 950;
+    canvas.width = 1280;
     canvas.height = 720;
+    
 }
 
 // set screen to blac for testing
-ctx.fillRect(0,0,canvas.width,canvas.height);
+//ctx.fillRect(0,0,canvas.width,canvas.height);
 
 //using classes since it makes sense for games (es6 version)
+
 class Sprite{
     //for now make box but late load in images
     
-    constructor({position,velocity}){
+    constructor({
+        position,
+        imgSrc,
+        scale = 1,
+        framesMax = 1,
+        offset = { x: 0, y: 0 }
+    }){
         this.position = position;
-        this.velocity = velocity;
         this.height = 100;
         this.width = 100;
-        this.movementspeed = 4 
+        this.image = new Image();
+        this.image.src = imgSrc;
+        this.scale = scale;
+        this.framesMax = framesMax;
+        this.framesCurrent = 0;
+        this.framesElapsed = 0;
+        this.framesHold = 5;
+        this.offset = offset;
 
     }
     draw(){
-        ctx.fillStyle = 'red'
-        ctx.fillRect(this.position.x,this.position.y,50,100)
+        ctx.drawImage(
+            this.image,
+            //this.framesCurrent * (this.image.width / this.framesMax),
+            0,
+            0,
+            //this.image.width / this.framesMax,
+            this.image.width,
+            this.image.height,
+            //this.position.x - this.offset.x,
+            //this.position.y - this.offset.y,
+            0,
+            0,
+            (this.image.width / this.framesMax) * this.scale,
+            this.image.height * this.scale
+        );
 
     }
+    animateFrames() {
+        this.framesElapsed++
+    
+        if (this.framesElapsed % this.framesHold === 0) {
+          if (this.framesCurrent < this.framesMax - 1) {
+            this.framesCurrent++
+          } else {
+            this.framesCurrent = 0
+          }
+        }
+      }
+
     update(){
         this.draw();
-        // update with mouse velocity
-        this.position.x += this.velocity.x
-        this.position.y += this.velocity.y
-        if(this.position.x + this.width >= canvas.width){
-
-            
-        }
-        if(this.position.y + this.height >= canvas.height){
-
-
-        }
-
+        //this.animateFrames();
     }
 
 }
-const player = new Sprite({
+const background = new Sprite({
     position:{
         x:0,
         y:0
     },
-    velocity:{
-        x:0,
-        y:0
-    }
+    imgSrc:'./assets/world/intro_screen.png'
 })
-const enemy = new Sprite({
-    position:{
-        x:500,
-        y:500
-    },
-    velocity:{
-        x:0,
-        y:0
-    }
-})
+
 
 //RESPONSIVVENESS
 const keys = {
@@ -91,9 +107,13 @@ function animate(){
     //console.log("test");
     window.requestAnimationFrame(animate);
     ctx.fillStyle = 'black'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    background.update();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.15)'
     ctx.fillRect(0,0,canvas.width,canvas.height);
-    player.update();
-    enemy.update();
+ 
+
+    /*
     player.velocity.x = 0;
     player.velocity.y = 0;
     if(keys.w.pressed){
@@ -105,6 +125,7 @@ function animate(){
     }else if(keys.d.pressed){
         player.velocity.x = player.movementspeed;
     }
+*/
 }
 
 
